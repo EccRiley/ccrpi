@@ -1,0 +1,9 @@
+PackratFormat: 1.4
+PackratVersion: 0.4.8.1
+RVersion: 3.5.0
+Repos: =https://cran.cnr.berkeley.edu/
+
+Package: packrat
+Source: CRAN
+Version: 0.4.8-1
+Hash: 6ad605ba7b4b476d84be6632393f5765

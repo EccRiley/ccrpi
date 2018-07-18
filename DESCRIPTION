@@ -1,0 +1,15 @@
+Package: ccrpi
+Type: Package
+Title: Compute CCRPI Scores for Georgia (U.S.A.) Schools
+Version: 0.1.1.9000
+Author: Riley Smith-Hunter
+Maintainer: Riley Smith-Hunter <hunterrm1@fultonschools.org>
+Description: An R Package for computing and analyzing individual, grade-cluster-wide, district-wide, and/or state-wide CCRPI scores for GA schools (based on the 2018 Redesigned CCRPI Scoring Model)
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+  magrittr
+  data.table
+Remotes: 
+  git::https://github.com/EccRiley/Riley.git
