@@ -1,6 +1,6 @@
 Package: ccrpi
 Type: Package
-Title: Compute CCRPI Scores for Georgia (U.S.A.) Schools
+Title: Calculate Georgia (U.S.) Schools' College & Career Ready Performanc Index (CCRPI) Scores in R
 Version: 0.1.1.9000
 Author: Riley Smith-Hunter
 Maintainer: Riley Smith-Hunter <hunterrm1@fultonschools.org>
@@ -13,3 +13,4 @@ Imports:
   data.table
 Remotes: 
   git::https://github.com/EccRiley/Riley.git
+RoxygenNote: 6.0.1

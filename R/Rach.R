@@ -1,73 +1,92 @@
-#' ---
-#' title: "Fulton County Schools CCRPI 2017 Replicated using 2018 Scoring Model: Content Mastery Algorithms"
-#' author: "Riley Smith-Hunter"
-#' date: "Last Updated: `r format(Sys.Date(), '%d %b %Y')`"
-#' ---
+#' \emph{Content Mastery} Component Score Calculation.
 #'
-#' -----
+#' Dynamically compute subject-area indicator points for the \emph{Content Mastery CCRPI} component, overall (per individual school, or across multiple schools within the same gradeband) or by subgroup(s).
+
 #'
-#' # `Rach()`
+#' @param x A \code{dataframe} or object coercible to a \code{dataframe} containing \emph{GA Milestones} data to be used in computing subject-level \emph{Content Mastery} indicator points.
+#' @param gradeband A character vector of length 1 specifying the focal gradeband as one of the following: "ES" for elementary schools (grades 3 - 5), "MS" for middle schools (grades 6 - 8), or "HS" (grades 9 - 12).
+#' @param grade_var A character vector of length 1 specifying the column name in \code{x} containing students' grade level
+#' @param subject A character vector of length 1 specifying the focal subject area s one of the following: "ELA" for English/Language Arts, "MATH" for Mathematics, "SCI" for Science, or "SS" for Social Studies.
+#' @param subject_var A character vector of length 1 specifying the column name in \code{x} containing the appropriate subject area codes.
+#' @param subjectcodes A character vector specifying the actual codes used in \code{x$subject_var} for the subject area specified in \code{subject}.
+#' @param assessment_type_var A character vector of length 1 specifying the column name in \code{x} containing the assessment types (e.g., "EOG", "EOC", "GAA", etc.).
+#' @param assessment_type_codes A character vector specifying the acceptable values of \code{assessment_type_var} for use in computing content mastery scores.
+#' @param fay_var A character vector of length 1 specifying the column name in \code{x} containing the \emph{FAY Participant} filter.
+#' @param fay_code A character vector specifying acceptable values of \code{fay_var} for the \emph{FAY} filter.
+#' @param performance_code_var A character vector of length 1 specifying the column name in \code{x} containing the assessment performance codes (e.g., "BEG", "DEV", "PRO", "DIS").
+#' @param valid_performance_codes A character vector specifying the acceptable performance code values under \code{performance_code_var}.
+#' @param rec.cmlvls A character vector of (pseudo) length 1 providing the recodes to be passed to \code{car::recode()} for the \emph{Content Mastery} achievement levels (see \emph{Details}).
+#' @param rec.cmpnts A character vector of (pseudo) length 1 providing the recodes to be passed to \code{car::recode()} for the point values corresponding to the \emph{Content Mastery} achievement levels (see \emph{Details}).
+#' @param group_var An \emph{optional} character vector specifying the column name in \code{x} containing the appropriate variable for the focal subgroup (see \emph{Details} and \code{\link[ccrpi]{Rcgpts}}).
+#' @param group A character vector specifying the appropriate subgroup under \code{group_var} (ignored if \code{group_var} is \code{NULL}).
+#' @param return_new_x logical. If \code{TRUE} (the default), the final returned value is a list containing (1) the manipulated version of the input dataframe (`x`), for QC purposes, and (2) the computed subject-level \emph{Content Mastery} points dataframe.
+#' @param ... Additional arguments \emph{not yet implemented}.
 #'
-Rach <- function(x, gradeband, subject, groupvar = NULL, group = NULL, return_new_x = TRUE, ...) {
-    ## Rach(): FUNCTION FOR DYNAMICALLY COMPUTING CONTENT MASTERY CCRPI COMPONENTS' SUBJECT-LEVEL INDICATOR'S SCORE (SUBJECT TO BE COMPUTED IS SPECIFIED BY USER, AS IS GRADEBAND). ALSO USED IN CLOSING GAPS COMPONENT'S SUBJECT-LEVEL INDICATOR SCORES FOR EACH SUBGROUP (SUBGROUP CAN BE SPECIFIED BY USER FOR THIS PURPOSE) ##
+
+Rach <- function(x, gradeband, grade_var = "student.grade.level",
+                 subject, subject_var, subjectcodes,
+                 assessment_type_var,
+                 assessment_type_codes = c("EOG", "EOC", "GAA"),
+                 fay_var, fay_code = "Y",
+                 performance_code_var = "osa.performance.code",
+                 valid_performance_codes = c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS"),
+                 rec.cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
+                 rec.cmpnts = c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5"),
+                 group_var = NULL, group = NULL, return_new_x = TRUE, ...) {
 
 
     ## WEIGHTS APPLIED TO EACH SCHOOL'S % OF STUDENTS SCORING AT EACH ACHIEVEMENT LEVEL ON THE INPUT SUBJ. ##
-    rec.cmlvls <- c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'") ## EOG/EOC/GAA ACHIEVEMENT LEVELS (ADDED ON 2018-05-09) ##
-    rec.cmpnts <- c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5") ## ACHIEVEMENT LEVEL POINT-VALUES (ADDED ON 2018-05-09) ##
+    rec.cmlvls <-
+    rec.cmpnts <-
     # rec.wgt <- c("'L1' = 0; 'L2' = 0.5; 'L3' = 1; 'L4' = 1.5; else = 0") ## 'rec.wgt' NOT CURRENTLY IMPLEMENTED (BC THIS IS FUNCTIONALLY THE SAME AS 'rec.cmpnts' ABOVE, BUT KEEPING HERE FOR REFERENCE) ##
 
     ## 'newxvars': LIST OF ALL ESSENTIAL VARS (INCL. SUBGROUPS' VARS) FOR CONTENT MASTERY OUTPUT DF ##
     newxvars <- c("school.id", "school.name", "school.year", "N_Students", "gtid",
-                  "fay.participant", "student.grade.level", "gender.code", "race.code", "el", "ed", "swd", "all",
-                  "assessment.type.code", "osa.performance.code", "osa.performance.lvl",
+                  "fay.participant", grade_var, "gender.code", "race.code", "el", "ed", "swd", "all",
+                  assessment_type_var, performance_code_var, "osa.performance.lvl",
                   "SumPts", "AchPts", "AchPts_Cpd", "AchPts_Wgtd", "ccrpi.points")
     ## NOTE: ['SumPts', 'AchPts', 'AchPts_Cpd', 'AchPts_Wgtd', & 'CCRPI_POINTS'] ARE CREATED BELOW ##
 
     ### RESTRICT X TO SPECIFIED GROUP (IF APPLICABLE) ####
-    if (!is.null(groupvar)) {
-        x <- x[groupvar == group, ] %>% droplevels()
+    if (!is.null(group_var)) {
+        x <- x[group_var == group, ] %>% droplevels()
     }
     ### FILTER ON [FAY.PARTICIPANT == 'Y'] ####
     ## (... & CREATE 'new_x' AS A DATA.TABLE-CLASSED COPY OF 'x', RETAINING ONLY VARIABLES CM-RELEVANT) ##
     new_x <- x[x$fay.participant == "Y", names(x) %in% newxvars] %>% droplevels()
     library(data.table)
-    setDT(new_x, key = c("school.id"))
 
-    ### RESTRICT TO VALID ASSESSMENT TYPES ('assessment.type.code'): ####
-    ## (MODFIFIED TO INCLUDE 'GAA' ASSESSMENT.TYPE.CODE ON 2018-05-09) ##
-    new_x <- new_x[assessment.type.code %in% c("EOG", "EOC", "GAA")]
+    ### RESTRICT TO VALID ASSESSMENT TYPES ('assessment_type_var'): ####
+    new_x <- new_x[new_x[[assessment_type_var]] %in% assessment_type_codes]
 
     ### RESTRICT TO USER-SPECIFIED GRADEBAND ####
     if (gradeband == "MS") {
         ## HIGH SCHOOLS ##
-        new_x <- new_x[student.grade.level %in% c(6, 7, 8)]
+        new_x <- new_x[x[[grade_var]] %in% c(6, 7, 8)]
     } else  if (gradeband == "HS") {
         ## MIDDLE SCHOOLS ##
-        new_x <- new_x[student.grade.level >= 9]
+        new_x <- new_x[x[[grade_var]] >= 9]
     } else if (gradeband == "ES") {
         ## ELEMENTARY SCHOOLS ##
-        new_x <- new_x[student.grade.level <= 5]
+        new_x <- new_x[x[[grade_var]] <= 5]
     } else stop("Unusable Grade Band")
 
     ### RESTRICT TO VALID ACHIEVEMENT LEVEL CODES ####
-    ## (MODIFIED TO INCLUDE 'GAA' ACH.LVL. CODES ON 2018-05-09) ##
-    new_x <- new_x[osa.performance.code %in% c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS")] ## MODIFIED ON 2018-05-09 ##
+    new_x <- new_x[x[[performance_code_var]] %in% valid_performance_codes]
 
     ### RECODE OSA.PERFORMANCE.CODE ####
     ## (... TO ENSURE THAT THE ACH-PT LEVELS ARE ORDERED CORRECTLY IN TABULATED OUTPUTS LATER) ##
-    new_x[, osa.performance.lvl := car::recode(osa.performance.code, rec.cmlvls)] ## SEE 'rec.cmlvls' DEF ABOVE (MODIFIED ON 2018-05-09) ##
+    new_x[, performance.lvl := car::recode(x[[performance_code_var]], rec.cmlvls)] ## SEE 'rec.cmlvls' DEF ABOVE ##
 
     ### CREATE NEW "ccrpi.points" COLUMN (PER D.JAFFE) <==> EACH STUDENT'S ACH. PTS. EARNED ON THE INPUT SUBJ. ##
-    ## (... IMPLEMENTED ON 2018-05-09) ##
-    new_x[, ccrpi.points := car::recode(osa.performance.code, rec.cmpnts)] ## SEE 'rec.cmpnts' DEF ABOVE ##
+    new_x[, ccrpi.points := car::recode(x[[performance_code_var]], rec.cmpnts)] ## SEE 'rec.cmpnts' DEF ABOVE ##
 
     cm.subj <- new_x[, .(N_Students = .N, ## COMPUTE NUMBER OF VALID TEST RESULTS FOR THE FOCAL SUBJ. ##
                          SumPts = sum(ccrpi.points), ## COMPUTE TOTAL ACH.PTS. EARNED ON THE FOCAL SUBJ. ##
-                         AchPts = sum(ccrpi.points)/.N), ## COMPUTE SUBJ. INDICATOR'S CCRPI PTS [DEPRECATED ROUNDING OF 'AchPts' ON 20180608 (FOR QC PURPOSES)] ##
+                         AchPts = sum(ccrpi.points)/.N), ## COMPUTE SUBJ. INDICATOR'S CCRPI PTS ##
                      by = key(new_x)] ## DO ALL OF THE ABOVE BY SCHOOL ##
 
-    ### ... (NOTE: SUBJ. INDICATOR CCRPI PTS ARE COMPUTED AS A FUNCTION OF [TOTAL ACH.PTS. EARNED] DIVIDED BY  [NUMBER OF VALID TEST RESULTS] FOR THE FOCAL SUBJ. - THE RESULTING SCHOOL-LEVEL INDICATOR SCORE IS ROUNDED TO 2 DECIMAL PLACES, PER 2018 CALCULATION GUIDE) [IMPLEMENTED ROUNDING ON 2018-06-02] ###
+    ### ... (NOTE: SUBJ. INDICATOR CCRPI PTS ARE COMPUTED AS A FUNCTION OF [TOTAL ACH.PTS. EARNED] DIVIDED BY  [NUMBER OF VALID TEST RESULTS] FOR THE FOCAL SUBJ. - THE RESULTING SCHOOL-LEVEL INDICATOR SCORE IS ROUNDED TO 2 DECIMAL PLACES, PER 2018 CALCULATION GUIDE) ###
 
     ## CAP SUBJ. INDICATOR ACHIEVEMENT POINTS AT 100% (i.e., 1.0pts) ##
     cm.subj[, AchPts_Cpd := ifelse(AchPts >= 1.0000, 1, AchPts)]
@@ -84,7 +103,7 @@ Rach <- function(x, gradeband, subject, groupvar = NULL, group = NULL, return_ne
     }
 
     ### APPLY CONTENT MASTERY WEIGHT (BASED ON GRADEBAND) TO CAPPED SUBJ. INDICATOR SCORES ####
-    cm.subj[, AchPts_Wgtd := AchPts_Cpd*cmwgt] ## [DEPRECATED ROUNDING ON 20180612 (FOR QC PURPOSES)]##
+    cm.subj[, AchPts_Wgtd := AchPts_Cpd*cmwgt]
 
     ## APPEND SUBJ. LABEL TO COMPUTED VARIABLES' COLNAMES ##
     names(cm.subj)[-1] <- paste0(names(cm.subj)[-1], ".", subject)
@@ -97,9 +116,7 @@ Rach <- function(x, gradeband, subject, groupvar = NULL, group = NULL, return_ne
     } else return(cm.subj)
 }
 
-pander::pander(Rach)
-#'
-#' -----
+
 #'
 #' # `Rach_validate()`
 #'
@@ -107,12 +124,12 @@ Rach_validate <- function(new_x, orig_x, label.subject, label.grade) {
     library(dplyr)
     ### INCLUDE ALL ORIGINAL VALUES IN LEVELS OF NEW_X ####
     labs.fay <- unique(na.omit(orig_x$fay.participant))
-    labs.osa <- unique(na.omit(orig_x$assessment.type.code))
+    labs.osa <- unique(na.omit(orig_x[[assessment_type_var]]))
     new_x$fay.participant <- factor(new_x$fay.participant,
                                     levels = labs.fay)
-    new_x$assessment.type.code <- factor(new_x$assessment.type.code,
+    new_x[[assessment_type_var]] <- factor(new_x[[assessment_type_var]],
                                          levels = labs.osa)
-    new_x$osa.performance.code <- factor(new_x$osa.performance.code,
+    new_x[[performance_code_var]] <- factor(new_x[[performance_code_var]],
                                          levels = c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS"), ordered = TRUE)
 
     label.grade <- paste0("(", label.grade, ")")
@@ -135,145 +152,17 @@ Rach_validate <- function(new_x, orig_x, label.subject, label.grade) {
     table(new_x$assessment.type.code) %>%
         pander(caption = paste0(label.subjgr, " 'Assessment Type Code' (_post_-filtering)"),
                justify = rep("right", length(labs.osa)))
-    ftable(new_x$assessment.type.code, new_x$osa.performance.code,
+    ftable(new_x$assessment.type.code, new_x[[performance_code_var]],
            dnn = list("**'Assessment Type Code'**", "**'OSA Performance Code'**")) %>%
         pander(caption = paste0(label.subjgr, " 'Assessment Type Code' by ", label.subjgr, " 'OSA Performance Code' (_post_-filtering)"),
-               justify = c("center", "center", rep("right", nlevels(new_x$osa.performance.code))))
-    ftable(new_x$fay.participant, new_x$ccrpi.points, new_x$osa.performance.code,
+               justify = c("center", "center", rep("right", nlevels(new_x[[performance_code_var]]))))
+    ftable(new_x$fay.participant, new_x$ccrpi.points, new_x[[performance_code_var]],
            dnn = list("**'FAY Participant'**", "**'CCRPI Points'**", "**'OSA Performance Code'**")) %>%
         pander(caption = paste0("'FAY Participant' by ", label.subjgr, " 'OSA Performance Code' by ", label.subjgr, " 'CCRPI Points' (_post_-filtering)"),
                justify = c(rep("center", 3), rep("right", 6)))
-    ftable(new_x$fay.participant, new_x$ccrpi.points, new_x$osa.performance.lvl,
+    ftable(new_x$fay.participant, new_x$ccrpi.points, new_x$performance.lvl,
            dnn = list("**'FAY Participant'**", paste0("**", label.subjgr, " 'CCRPI Points'**"),
                       "**_Recoded_ 'OSA Performance Code'**")) %>%
         pander(caption = paste0("'FAY Participant' by _Recoded_ ", label.subjgr, " 'OSA Performance Code' by ", label.subjgr, " 'CCRPI Points'"),
                justify = c("center", "center", "center", rep("right", 4)))
 }
-
-pander::pander(Rach_validate)
-#'
-#+ demo_rach, echo=FALSE
-# **DEMO**: 'Rach()' QUALITY CONTROL CHECKS -----------------------------------------------------------
-
-
-# Rach_validate(new_x = ach.ela.es0$new_x, orig_x = ela, label.subject = "ELA", label.grade = "ES")
-
-## **DEMO**: Rach_validate() STEP-BY-STEP ================================
-# table(x$fay.participant) %>% pander(caption = "ELA (ES) FAY Participant Values (pre-filtering)")
-# x <- x[fay.participant == "Y"] ## RE-IMPLEMENTED ON 2018-05-09 ##
-# table(x$fay.participant) %>% pander(caption = "ELA (ES) FAY Participant Values (_post_-filtering)")
-# table(x$assessment.type.code) %>% pander(caption = "ELA (ES) Assessment Types")
-# ftable(x$assessment.type.code, x$osa.performance.code, dnn = list("**Assessment Type**", "**OSA Performance Code**")) %>% pander(caption = "ELA (ES) Assessment Types by ELA (ES) Performance Codes")
-# ftable(x$fay.participant, x$osa.performance.code, x$ccrpi.points, dnn = list("**FAY Participant**", "**OSA Performance Code**", "**CCRPI Points (_computed_)**")) %>% pander(caption = "Quality Check: FAY Participation by OSA Performance Code by Computed CCRPI Points")
-# ftable(x$fay.participant, x$osa.performance.lvl, x$ccrpi.points, dnn = list("**FAY Participant**", "**_Recoded_ OSA Performance Code**", "**CCRPI Points (_computed_)**")) %>% pander(caption = "Quality Check: FAY Participation by Recoded OSA Performance Code by Computed CCRPI Points")
-#'
-#+ codedump_rach, echo=FALSE
-# CODEDUMP (Rach()) -------------------------------------------------------
-
-# Rach <- function(x, gradeband, groupvar = NULL, group = NULL, ...) { ## THIS VERSION DEPRECATED AS OF 2018-05-14 ##
-#     setDT(x)
-#     ## WEIGHTS TO BE APPLIED TO PERCENTAGES OF STUDENTS AT EACH ACHIEVEMENT LEVEL
-#     ## (BEG/DNM = L1; DEV = L2; PRO/ADV = L3; DIS = L4) ##
-#     rec.cmlvls <- c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'") ## EOG/EOC/GAA PROFICIENCY LEVELS (ADDED ON 2018-05-09) ##
-#     rec.cmpnts <- c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5") ## EOG/EOC/GAA PROFICIENCY POINTS (ADDED ON 2018-05-09) ##
-#     rec.wgt <- c("'L1' = 0; 'L2' = 0.5; 'L3' = 1; 'L4' = 1.5; else = 0")
-#     cmwgts <- c(BEG = 0, DNM = 0, DEV = 0.5, PRO = 1, ADV = 0, DIS = 1.5) ## BEG/DNM = L1; DEV = L2; PRO/ADV = L3; DIS = L4 (MODIFIED ON 2018-05-09) ##
-#
-#     ## GRADEBAND INDEXES ##
-#     if (gradeband == "MS") {
-#         ## HIGH SCHOOLS ##
-#         x <- x[student.grade.level %in% c(6, 7, 8)]
-#     } else  if (gradeband == "HS") {
-#         ## MIDDLE SCHOOLS ##
-#         x <- x[student.grade.level >= 9]
-#     } else if (gradeband == "ES") {
-#         ## ELEMENTARY SCHOOLS ##
-#         x <- x[student.grade.level <= 5]
-#     } else stop("Unusable Grade Band")
-#     ## FILTER ON 'fay.participant' == 'Y' ##
-#     ## RE-IMPLEMENTED ON 2018-05-09 (PER D.JAFFE) ##
-#     x <- x[fay.participant == "Y"]
-#
-#     ## IMPLEMENT GRADEBAND-SPECIFIC RULES:
-#     ## ASSESSMENT TYPE (x$assessment.type.code):
-#     ## ES & MS ('EM') == 'EOG', 'EOC' (MS ONLY), & 'GAA'##
-#     if (gradeband %in% c("MS", "ES")) {
-#         x <- x[assessment.type.code %in% c("EOG", "EOC", "GAA")]
-#     } else if (gradeband == "HS") {
-#         #> HS == 'EOC' & 'GAA' ##
-#         x <- x[assessment.type.code %in% c("EOC", "GAA")]
-#     }
-#
-#     ## FILTER ON GROUP IF SPECIFIED BY USER (SEE ARGS IN FUNCTION CALL ABOVE) ##
-#     if (!is.null(groupvar)) {
-#         x <- x[groupvar == group]
-#     }
-#
-#     ## KEEP ONLY VALID PERFORMANCE CODES ##
-#     x <- x[osa.performance.code %in% c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS")]
-#
-#     ## ENSURE THAT THE ACH-PT LEVELS ARE ORDERED CORRECTLY IN REPORT TABLE OUTPUTS ##
-#     x[, osa.performance.lvl := car::recode(x$osa.performance.code, rec.cmlvls)] ## SEE CM.LVLS DEF ABOVE ##
-#
-#     ## IDVARS ##
-#     ids <- c("school.id", "gtid")
-#
-#     ## COMPUTE ACHIEVEMENT POINTS FOR EACH PERFORMANCE CODE ##
-#     ## SELECT ONLY IDVARS AND THE COLUMN CONTAINING PERFORMANCE CODES DATA
-#     ## ('x$osa.performance.lvl', DEFINED ABOVE) ##
-#     xpcode <- x[, c(ids, "osa.performance.lvl"), with = FALSE]
-#
-#     ## RESHAPE SUBSETTED DATAFRAME TO WIDE FORMAT SO THAT:
-#     ## THE FIRST COLUMN ('C1') CONTAINS THE 'gtid' FOR EACH STUDENT
-#     ## EACH STUDENT HAS DATA ON ONE ROW
-#     ## EACH SCHOOL HAS DATA IN ONE COLUMN
-#     ## COLUMNS 2:N_SCHOOLS CONTAIN THE PERF. CODE ASSIGNED TO EACH STUDENT W/IN EACH SCHOOL ##
-#     xpcodew <- reshape(xpcode,
-#                        v.names = c("osa.performance.lvl"),
-#                        idvar = "gtid",
-#                        timevar = "school.id", direction = "wide")
-#
-#     ## TABULATE COUNTS OF EACH UNIQUE VALUE IN EACH COLUMN
-#     ## ('L1' ('BEG'/'DNM'), 'L2' ('DEV'), 'L3' ('PRO'/'ADV'), 'L4' ('DIS'))
-#     ## (EXCEPT C1, WHICH CONTAINS THE STUDENT IDs AND THEREFORE HAS AS MANY UNIQUE VALUES AS THERE ARE ROWS IN THE 'xpcodew`' DATAFRAME CREATED IN THE PREVIOUS LINE) ##
-#     ## THE RESULTING TABLE OF COUNTS IS THEN TRANSPOSED ("`t()`") SO THAT
-#     xpcode_n0 <- sapply(xpcodew[, -1], table) %>% t()
-#     xpcode_n1 <- data.frame(school.id = gsub("osa\\.performance\\.lvl\\.", "",
-#                                              rownames(xpcode_n0)), xpcode_n0)
-#     xpcode_n2 <- merge(fcs_schools, xpcode_n1)
-#     xpcode_n <- xpcode_n2[!duplicated(xpcode_n2), ]
-#     xpcode_n$n <- apply(xpcode_n0, 1, sum)
-#     xpcode_p <- data.frame(xpcode_n[, 1:2], round((xpcode_n0/xpcode_n$n)*100, 0))
-#
-#     xpcode_ptr <- t(xpcode_p[, -1:-2])
-#     colnames(xpcode_ptr) <- gsub("osa\\.performance\\.code\\.", "", rownames(xpcode_n0))
-#     xpcode_ptr1 <- xpcode_ptr*cmwgts
-#     xpcode_pts <- t(xpcode_ptr1)
-#     ach0 <- data.frame(school.id = rownames(xpcode_pts), ach = apply(xpcode_pts, 1, sum))
-#     ach1 <- merge(fcs_schools, ach0)
-#     ach <- ach1[!duplicated(ach1), ]
-#
-#     ## QUALITY CHECKS ##
-#     # range(x[x$osa.performance.lvl == "L1", "assessment.scale.score"], na.rm = T)
-#     # range(x[x$osa.performance.lvl == "L2", "assessment.scale.score"], na.rm = T)
-#     # range(x[x$osa.performance.lvl == "L3", "assessment.scale.score"], na.rm = T)
-#     # range(x[x$osa.performance.lvl == "L4", "assessment.scale.score"], na.rm = T)
-#
-#     ## PARTICIPATION RATE CALCULATION DEPRECATED AS OF 2018-05-09 (PER D.JAFFE) ##
-#     ## PARTICIPATION RATE DENOMINATOR (NUMERATOR FOR ALL GRADEBANDS == 'x$test.participant'):
-#     ## EM == 'x$test.window.enrollee' ##
-#     # if (gradeband %in% c("MS", "ES")) {
-#     #     prate_denom <- "test.window.enrollee"
-#     #         ## HS == 'x$course.enrolled' ##
-#     # } else if (gradeband == "HS") {
-#     #     prate_denom <- "course.enrolled"
-#     # }
-#     # pr.p <- table(x$school.id, x$test.participant) %>% as.matrix
-#     # pr.e <- table(x$school.id, x[, prate_denom]) %>% as.matrix
-#     # pr <- data.frame(school.id = rownames(pr.p), prate = (pr.p[, "Y"]/pr.e[, "Y"])*100)
-#     # ach3 <- merge(ach2, pr)
-#     # ach <- within(ach3, {
-#     #     ach.pr <- ifelse(prate < 95, ach*(prate/95), ach)
-#     # })
-#     return(ach)
-# }
