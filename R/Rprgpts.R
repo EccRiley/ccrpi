@@ -1,6 +1,6 @@
-# source("zmeta.R") ## ONLY RUN WHEN TESTING ##
-
-## COMPUTE SGPs FOR ONE SUBJECT AREA ACROSS ALL GRADE LEVELS AT ONCE ##
+#' Compute Student Growth Points (SGPs) for one subject area and across all grade levels at once (todo).
+#'
+#' @export
 Rprgpts <- function(x, subjectarea, fayfilter = TRUE, assessmenttype = c("EOG", "EOC", "GAA"), ids = c("school.id", "gtid"), ptsvar = "x2018.points") {
     ## FILTER ON SPECIFIED SUBJECT AREA ##
     x0 <- x[x$assessmentsubjectareacode == subjectarea, ] %>% droplevels()

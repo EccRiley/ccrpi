@@ -2,10 +2,10 @@
 % Please edit documentation in R/Rcmbl.R
 \name{Rcmbl}
 \alias{Rcmbl}
-\title{-----}
+\title{Generate Subgroups' \emph{Content Mastery} Baseline Data (todo)}
 \usage{
 Rcmbl(bl.subj, gradecluster, subject, ...)
 }
 \description{
-# '`Rcmbl()`': Algorithm for Generating Subgroups' Content Mastery Baseline Data
+Generate Subgroups' \emph{Content Mastery} Baseline Data (todo)
 }

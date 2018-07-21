@@ -1,14 +1,15 @@
-#' \emph{Closing Gaps} Points Earned by Subgroup
+#' \emph{Closing Gaps} Points Earned by Subgroup (in progress)
 #'
-#' Compute a given subgroup's \emph{Closing Gaps} points for a given GA Milestones assessment subject & gradeband using the baselines & targets data generated via \code{\link{R}} for that subgroup on that assessment in that gradeband (i.e., must be implemented on each subgroup's data for each assessment subject within each gradeband).
+#' Compute a given subgroup's \emph{Closing Gaps} points for a given GA Milestones assessment subject & gradeband using the baselines & targets data generated via \code{\link{Rach}} for that subgroup on that assessment in that gradeband (i.e., must be implemented on each subgroup's data for each assessment subject within each gradeband).
 #'
-#' @param x
-#' @param df.baseline
-#' @param df.target
-#' @param subject
-#' @param subgroups
-#' @param in_vivo_qc
+#' @param x todo
+#' @param df.baseline todo
+#' @param df.target todo
+#' @param subject todo
+#' @param subgroups todo
+#' @param in_vivo_qc todo
 #'
+#' @export
 Rcgpts <- function(x,
     df.baseline,
     df.target,

@@ -1,4 +1,6 @@
-
+#' Compute \emph{Progress} Component EL Indicator Points (todo)
+#'
+#' @export
 Relp <- function(x, ids = c(school = "school.id", student = "gtid", group = "student.grade.level")) {
     colnames(x) <- tolower(colnames(x)) ## PREEMPTIVELY FORCE ALL COLNAMES TO LOWER CASE ##
     colnames(x) <- gsub("[\\.]{2,}", ".", colnames(x), perl = TRUE) ## PREEMPTIVELY CLEAN EXCESS CONSECUTIVE "."s (CAUSED BY EXCESS CONSECUTIVE WHITESPACES) IN x'S COLNAMES ##

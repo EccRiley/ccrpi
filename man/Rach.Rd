@@ -2,7 +2,7 @@
 % Please edit documentation in R/Rach.R
 \name{Rach}
 \alias{Rach}
-\title{\emph{Content Mastery} Subject-Area Indicators' Points}
+\title{\emph{Content Mastery} Subject-Area Indicators' Points (in progress)}
 \usage{
 Rach(x, gradeband, grade_var = "student.grade.level", subject, subject_var,
   subject_code, assessment_type_var, assessment_type_codes = c("EOG", "EOC",

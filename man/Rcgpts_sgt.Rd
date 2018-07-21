@@ -2,15 +2,23 @@
 % Please edit documentation in R/Rcgpts_sgt.R
 \name{Rcgpts_sgt}
 \alias{Rcgpts_sgt}
-\title{Pre-Process Input Data for `Rcgpts()` (defined later)}
+\title{Pre-Process Input Data for \code{\link{Rcgpts}} (todo)}
 \usage{
 Rcgpts_sgt(xw, category_var = "reporting.category",
   baseline_vars_pattern = "baseline\\\\.", group_labs = c("all", "ai", "as",
   "bl", "hp", "mr", "wh", "ed", "el", "swd"))
 }
 \arguments{
+\item{xw}{todo}
+
+\item{category_var}{todo}
+
+\item{baseline_vars_pattern}{todo}
+
+\item{group_labs}{todo}
+
 \item{...}{Additional arguments \emph{not yet implemented}.}
 }
 \description{
-Pre-Process Input Data for `Rcgpts()` (defined later)
+Pre-Process Input Data for \code{\link{Rcgpts}} (todo)
 }
