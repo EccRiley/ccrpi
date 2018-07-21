@@ -1,3 +1,6 @@
+#' Compute benchmarked indicator points (todo)
+#'
+#' @export
 Rindicators <- function(x, idvar, v.names, timevar, benchmark = 1){
     x[, v.names] <- factor(x[, v.names])
     xpw <- reshape(x, v.names = v.names, idvar = idvar, timevar = timevar, direction = "wide")

@@ -1,3 +1,6 @@
+#' Compute Lexile Midpoints & \emph{Readiness} Component Lexile Indicator Performance Points
+#'
+#' @export
 Rlxmid <- function(x, grades, gradevar = "student.grade.level",
                    midpoints, fayfilter = TRUE) { ## NOTE: 'MIDPOINTS' & 'GRADES' SHOULD BE VECTORS OF THE SAME LENGTH ##
     ## RESTRICT TO SPECIFIED GRADES ##

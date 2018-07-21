@@ -1,4 +1,4 @@
-#' \emph{Content Mastery} Subject-Area Indicators' Points
+#' \emph{Content Mastery} Subject-Area Indicators' Points (in progress)
 #'
 #' Compute subject-area indicator points for the \emph{Content Mastery CCRPI} component, overall (per individual school, or across multiple schools within the same gradeband) or by subgroup(s).
 #'
@@ -136,3 +136,5 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
         return(list(new_x = new_x, cm.subj = cm.subj))
     } else return(cm.subj)
 }
+#'
+#' @section Examples (todo):

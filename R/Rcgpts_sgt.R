@@ -1,4 +1,4 @@
-#' Pre-Process Input Data for `Rcgpts()` (defined later)
+#' Pre-Process Input Data for \code{\link{Rcgpts}} (todo)
 #'
 #' @param xw
 #' @param category_var
@@ -6,6 +6,7 @@
 #' @param group_labs
 #' @param ... Additional arguments \emph{not yet implemented}.
 #'
+#' @export
 Rcgpts_sgt <- function(xw,
                        category_var = "reporting.category",
                        baseline_vars_pattern = "baseline\\.",
