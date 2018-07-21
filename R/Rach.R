@@ -19,23 +19,32 @@
 #' @param group_var An \emph{optional} character vector specifying the column name in \code{x} containing the appropriate variable for the focal subgroup (see \emph{Details} and \code{\link{Rcgpts}}).
 #' @param group A character vector specifying the appropriate subgroup under \code{group_var} (ignored if \code{group_var} is \code{NULL}).
 #' @param return_new_x logical. If \code{TRUE} (the default), the final returned value is a list containing (1) the manipulated version of the input dataframe (`x`), for QC purposes, and (2) the computed subject-level \emph{Content Mastery} points dataframe.
-#' @param ... Additional arguments \emph{not yet implemented}.
 #'
 #' @return A list containing the following components:
 #'
 #' \enumerate{
-#'     \item \code{\strong{'new_x'}}: The final `dataframe` used in computing the subject-area's \emph{Content Mastery} scores. The list below provides the columns included in \strong{\code{'new_x'}} and whether each column is from the original input dataframe \strong{\code{'x'}}, and if so any manipulations performed on the data in the column, or was computed as part of the process for computing the final scores. The primary differences between \strong{\code{'new_x'}} and the input \strong{\code{'x'}} dataframe is the added \code{\emph{"osa.performance.lvl"}} and \code{\emph{"ccrpi.points"}} columns. The former is a relabeled version of \code{x[["osa.performance.code"]]}, while \code{\emph{"ccrpi.points"}} contains the point-value assignment corresponding to each students' achievement level (per user-specified .
-#'     \item \code{\strong{'cm.subj'}}: A dataframe containing the computed \emph{Content Mastery} score(s) for the user-specified subject-area and gradeband. The table below provides additional details on the columns returned in this dataframe.
+#'    \item \code{\strong{'new_x'}}: The final `dataframe` used in computing the subject-area's \emph{Content Mastery} scores (see details).
+#'    \item \code{\strong{'cm.subj'}}: A dataframe containing the computed \emph{Content Mastery} score(s) for the user-specified subject-area and gradeband. The table below provides additional details on the columns returned in this dataframe (see details.
 #' }
 #'
+#' @section Details:
+#'
+#' \strong{\code{'new_x'}}, if returned, contains all columns in the original input \code{dataframe} (\strong{\code{'x'}}), along with two new columns: \code{\emph{"osa.performance.lvl"}} and \code{\emph{"ccrpi.points"}}.
+#' The former is a relabeled version of \code{x[["osa.performance.code"]]}, while \code{\emph{"ccrpi.points"}} contains the point-value assignment corresponding to each students' achievement level (per recode values specified in '\code{rec.cmpts}').
+#'
+#' The table below provides details for the contents of \strong{\code{'cm.subj'}} (i.e., the returned dataframe containing the computed points for the focal \emph{Content Mastery} subject-area indicator):
+#'
 #' \tabular{rlll}{
-#'   [,1] \tab school.id \tab integer \tab School ID number from \code{\strong{'x'}} \cr
-#'   [,2] \tab N_Students.SUBJ \tab integer \tab Number of students with valid test scores \cr
-#'   [,3] \tab SumPts.SUBJ \tab double \tab Count of achievement points earned across test takers \cr
-#'   [,4] \tab AchPts.SUBJ \tab double \tab Subject-area \emph{achievement points} computed as \eqn{\frac{"ccrpi.points"}{"N_Students.SUBJ"}{"ccrpi.points"/"N_Students.SUBJ"}} (see \code{'new_x[["ccrpi.points"]]'} description above) \cr
-#'   [,5] \tab AchPts_Cpd.SUBJ \tab double \tab \code{AchPts.SUBJ}, capped at 1.000 point (analygous 100%) \cr
-#'   [,6] \tab AchPts_Wgtd.SUBJ \tab double \tab \code{AchPts_Cpd.SUBJ} weighted according to gradeband-specific weighting rules for the focal subject-area indicator \cr
+#'   [,1] \tab \code{\emph{school.id}} \tab integer \tab School ID number from \code{\strong{'x'}} \cr
+#'   [,2] \tab \code{\emph{N_Students.SUBJ}} \tab integer \tab Number of students with valid test scores \cr
+#'   [,3] \tab \code{\emph{SumPts.SUBJ}} \tab double \tab Count of achievement points earned across test takers \cr
+#'   [,4] \tab \code{\emph{AchPts.SUBJ}} \tab double \tab Subject-area \emph{achievement points} (see details and \code{'new_x[["ccrpi.points"]]'} description above) \cr
+#'   [,5] \tab \code{\emph{AchPts_Cpd.SUBJ}} \tab double \tab \code{\emph{AchPts.SUBJ}}, capped at 1.000 point (analygous 100\%) \cr
+#'   [,6] \tab \code{\emph{AchPts_Wgtd.SUBJ}} \tab double \tab \code{\emph{AchPts_Cpd.SUBJ}} weighted according to gradeband-specific weighting rules for the focal subject-area indicator \cr
 #' }
+#'
+#' Note that \code{".SUBJ"} in the column labels above is a generic placeholder for the actual subject-area label (per user-specified value for \code{'subject_lab'}) (e.g., if \code{subject_lab == "ELA"}, then \code{\emph{'SumPts.SUBJ'}} above would actually be \code{\emph{'SumPts.ELA'}} in the returned \code{\strong{'cm.subj'}} dataframe.
+#'
 #'
 #' @export
 Rach <- function(x, gradeband, grade_var = "student.grade.level",
