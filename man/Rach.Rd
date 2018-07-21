@@ -2,29 +2,29 @@
 % Please edit documentation in R/Rach.R
 \name{Rach}
 \alias{Rach}
-\title{\emph{Content Mastery} Component Score Calculation.}
+\title{\emph{Content Mastery} Subject-Area Indicators' Points}
 \usage{
-Rach(x, gradeband, grade_var = "student.grade.level", subject, subject_var,
-  subjectcodes, assessment_type_var, assessment_type_codes = c("EOG", "EOC",
+Rach(x, gradeband, grade_var = "student.grade.level", subject_var, subject,
+  subject_code, assessment_type_var, assessment_type_codes = c("EOG", "EOC",
   "GAA"), fay_var, fay_code = "Y",
   performance_code_var = "osa.performance.code",
   valid_performance_codes = c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS"),
-  rec.cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
-  rec.cmpnts = c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5"),
+  rec_cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
+  rec_cmpnts = c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5"),
   group_var = NULL, group = NULL, return_new_x = TRUE, ...)
 }
 \arguments{
-\item{x}{A \code{dataframe} or object coercible to a \code{dataframe} containing \emph{GA Milestones} data to be used in computing subject-level \emph{Content Mastery} indicator points.}
+\item{x}{A \code{dataframe} or object coercible to a \code{dataframe} containing \emph{\strong{student-level} GA Milestones} data containing all necessary columns (see additional arguments below) for computing \emph{\strong{school-level} Content Mastery} points for a single subject-area indicator.}
 
 \item{gradeband}{A character vector of length 1 specifying the focal gradeband as one of the following: "ES" for elementary schools (grades 3 - 5), "MS" for middle schools (grades 6 - 8), or "HS" (grades 9 - 12).}
 
 \item{grade_var}{A character vector of length 1 specifying the column name in \code{x} containing students' grade level}
 
-\item{subject}{A character vector of length 1 specifying the focal subject area s one of the following: "ELA" for English/Language Arts, "MATH" for Mathematics, "SCI" for Science, or "SS" for Social Studies.}
-
 \item{subject_var}{A character vector of length 1 specifying the column name in \code{x} containing the appropriate subject area codes.}
 
-\item{subjectcodes}{A character vector specifying the actual codes used in \code{x$subject_var} for the subject area specified in \code{subject}.}
+\item{subject}{A character vector of length 1 specifying the focal subject area s one of the following: "ELA" for English/Language Arts, "MATH" for Mathematics, "SCI" for Science, or "SS" for Social Studies.}
+
+\item{subject_code}{A character vector specifying the actual codes used in \code{x$subject_var} for the subject area specified in \code{subject}.}
 
 \item{assessment_type_var}{A character vector of length 1 specifying the column name in \code{x} containing the assessment types (e.g., "EOG", "EOC", "GAA", etc.).}
 
@@ -38,18 +38,35 @@ Rach(x, gradeband, grade_var = "student.grade.level", subject, subject_var,
 
 \item{valid_performance_codes}{A character vector specifying the acceptable performance code values under \code{performance_code_var}.}
 
-\item{rec.cmlvls}{A character vector of (pseudo) length 1 providing the recodes to be passed to \code{car::recode()} for the \emph{Content Mastery} achievement levels (see \emph{Details}).}
-
-\item{rec.cmpnts}{A character vector of (pseudo) length 1 providing the recodes to be passed to \code{car::recode()} for the point values corresponding to the \emph{Content Mastery} achievement levels (see \emph{Details}).}
-
-\item{group_var}{An \emph{optional} character vector specifying the column name in \code{x} containing the appropriate variable for the focal subgroup (see \emph{Details} and \code{\link[ccrpi]{Rcgpts}}).}
+\item{group_var}{An \emph{optional} character vector specifying the column name in \code{x} containing the appropriate variable for the focal subgroup (see \emph{Details} and \code{\link{Rcgpts}}).}
 
 \item{group}{A character vector specifying the appropriate subgroup under \code{group_var} (ignored if \code{group_var} is \code{NULL}).}
 
 \item{return_new_x}{logical. If \code{TRUE} (the default), the final returned value is a list containing (1) the manipulated version of the input dataframe (`x`), for QC purposes, and (2) the computed subject-level \emph{Content Mastery} points dataframe.}
 
 \item{...}{Additional arguments \emph{not yet implemented}.}
+
+\item{rec.cmlvls}{A character vector of (pseudo) length 1 providing the \code{'recodes'} string to be passed to \code{\link[car]{car::recode()}} for the re-labeling \emph{Content Mastery} achievement levels.}
+
+\item{rec.cmpnts}{A character vector of (pseudo) length 1 providing the \code{'recodes'} string to be passed to \code{\link[car]{car::recode()}} for assigning point values corresponding to the \emph{Content Mastery} achievement levels.}
+}
+\value{
+A list containing the following components:
+
+\enumerate{
+    \item \code{\strong{'new_x'}}: The final `dataframe` used in computing the subject-area's \emph{Content Mastery} scores. The list below provides the columns included in \strong{\code{'new_x'}} and whether each column is from the original input dataframe \strong{\code{'x'}}, and if so any manipulations performed on the data in the column, or was computed as part of the process for computing the final scores. The primary differences between \strong{\code{'new_x'}} and the input \strong{\code{'x'}} dataframe is the added \code{\emph{"osa.performance.lvl"}} and \code{\emph{"ccrpi.points"}} columns. The former is a relabeled version of \code{x[["osa.performance.code"]]}, while \code{\emph{"ccrpi.points"}} contains the point-value assignment corresponding to each students' achievement level (per user-specified .
+    \item \code{\strong{'cm.subj'}}: A dataframe containing the computed \emph{Content Mastery} score(s) for the user-specified subject-area and gradeband. The table below provides additional details on the columns returned in this dataframe.
+}
+
+\tabular{rlll}{
+  [,1] \tab school.id \tab integer \tab School ID number from \code{\strong{'x'}} \cr
+  [,2] \tab N_Students.SUBJ \tab integer \tab Number of students with valid test scores \cr
+  [,3] \tab SumPts.SUBJ \tab double \tab Count of achievement points earned across test takers \cr
+  [,4] \tab AchPts.SUBJ \tab double \tab Subject-area \emph{achievement points} computed as \eqn{\frac{"ccrpi.points"}{"N_Students.SUBJ"}{"ccrpi.points"/"N_Students.SUBJ"}} (see \code{'new_x[["ccrpi.points"]]'} description above) \cr
+  [,5] \tab AchPts_Cpd.SUBJ \tab double \tab \code{AchPts.SUBJ}, capped at 1.000 point (analygous 100%) \cr
+  [,6] \tab AchPts_Wgtd.SUBJ \tab double \tab \code{AchPts_Cpd.SUBJ} weighted according to gradeband-specific weighting rules for the focal subject-area indicator \cr
+}
 }
 \description{
-Dynamically compute subject-area indicator points for the \emph{Content Mastery CCRPI} component, overall (per individual school, or across multiple schools within the same gradeband) or by subgroup(s).
+Compute subject-area indicator points for the \emph{Content Mastery CCRPI} component, overall (per individual school, or across multiple schools within the same gradeband) or by subgroup(s).
 }

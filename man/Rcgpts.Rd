@@ -2,11 +2,14 @@
 % Please edit documentation in R/Rcgpts.R
 \name{Rcgpts}
 \alias{Rcgpts}
-\title{-----}
+\title{\emph{Closing Gaps} Points Earned by Subgroup}
 \usage{
-Rcgpts(x, df.baseline, df.target, subject,
+Rcgpts(x, df.baseline, df.target, subject, subgroups,
   in_vivo_qc = getOption("in_vivo_qc"))
 }
+\arguments{
+\item{in_vivo_qc}{}
+}
 \description{
-# `Rcgpts()`: Algorithm for Computing Closing Gaps Points Earned by Subgroup
+Compute a given subgroup's \emph{Closing Gaps} points for a given GA Milestones assessment subject & gradeband using the baselines & targets data generated via \code{\link{R}} for that subgroup on that assessment in that gradeband (i.e., must be implemented on each subgroup's data for each assessment subject within each gradeband).
 }
