@@ -58,14 +58,15 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
 
     ### RESTRICT X TO SPECIFIED GROUP (IF APPLICABLE) ####
     if (!is.null(group_var)) {
-        x <- x[group_var == group, ] %>% droplevels()
+        x <- x[group_var == group, drop = FALSE]
     }
     ### FILTER ON FAY & FOCAL SUBJECT AREA ####
     ## (... & CREATE 'new_x' AS A DATA.TABLE-CLASSED COPY OF 'x', RETAINING ONLY VARIABLES CM-RELEVANT) ##
-    new_x <- x[x[[fay_var]] == fay_code & x[[subject_var == subject_code]],
-               names(x) %in% newxvars, drop = FALSE]
+    library(data.table)
+    new_x <- as.data.table(x[x[[fay_var]] == fay_code & x[[subject_var == subject_code]],
+               names(x) %in% newxvars, drop = FALSE])
 
-    new_x <- x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code, names(x) %in% newxvars] %>% droplevels()
+    new_x <- x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code, names(x) %in% newxvars, drop = FALSE]
 
     ### RESTRICT TO VALID ASSESSMENT TYPES ('assessment_type_var'): ####
     new_x <- new_x[new_x[[assessment_type_var]] %in% assessment_type_codes]
@@ -125,56 +126,4 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
     if (return_new_x == TRUE) {
         return(list(new_x = new_x, cm.subj = cm.subj))
     } else return(cm.subj)
-}
-
-
-#'
-#' # `Rach_validate()`
-#'
-#' @export
-Rach_validate <- function(new_x, orig_x, label.subject, label.grade) {
-    library(dplyr)
-    ### INCLUDE ALL ORIGINAL VALUES IN LEVELS OF NEW_X ####
-    labs.fay <- unique(na.omit(orig_x$fay.participant))
-    labs.osa <- unique(na.omit(orig_x[[assessment_type_var]]))
-    new_x$fay.participant <- factor(new_x$fay.participant,
-                                    levels = labs.fay)
-    new_x[[assessment_type_var]] <- factor(new_x[[assessment_type_var]],
-                                         levels = labs.osa)
-    new_x[[performance_code_var]] <- factor(new_x[[performance_code_var]],
-                                         levels = c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS"), ordered = TRUE)
-
-    label.grade <- paste0("(", label.grade, ")")
-    label.subjgr <- paste0(label.subject, " ", label.grade)
-
-    ### VALIDATION OUTPUT TABLES (N = 7) ####
-    table(orig_x$fay.participant) %>%
-        pander(caption = paste0(label.subjgr, " 'FAY Participant' (_pre_-filtering)"),
-               col.names = paste0("FAY Participant = '", labs.fay, "'"),
-               justify = rep("right", 2))
-
-    table(new_x$fay.participant, deparse.level = 2) %>%
-        pander(caption = paste0(label.subjgr, " 'FAY Participant' (_post_-filtering)"),
-               col.names = paste0("'FAY Participant' = '", labs.fay, "'"),
-               justify = rep("right", length(labs.fay)))
-    table(orig_x$assessment.type.code) %>%
-        pander(caption = paste0(label.subjgr, " 'Assessment Type Codes' (_pre_-filtering)"),
-               col.names = paste0("'Assessment Type Code' = '", labs.osa, "'"),
-               justify = rep("right", length(labs.osa)))
-    table(new_x$assessment.type.code) %>%
-        pander(caption = paste0(label.subjgr, " 'Assessment Type Code' (_post_-filtering)"),
-               justify = rep("right", length(labs.osa)))
-    ftable(new_x$assessment.type.code, new_x[[performance_code_var]],
-           dnn = list("**'Assessment Type Code'**", "**'OSA Performance Code'**")) %>%
-        pander(caption = paste0(label.subjgr, " 'Assessment Type Code' by ", label.subjgr, " 'OSA Performance Code' (_post_-filtering)"),
-               justify = c("center", "center", rep("right", nlevels(new_x[[performance_code_var]]))))
-    ftable(new_x$fay.participant, new_x$ccrpi.points, new_x[[performance_code_var]],
-           dnn = list("**'FAY Participant'**", "**'CCRPI Points'**", "**'OSA Performance Code'**")) %>%
-        pander(caption = paste0("'FAY Participant' by ", label.subjgr, " 'OSA Performance Code' by ", label.subjgr, " 'CCRPI Points' (_post_-filtering)"),
-               justify = c(rep("center", 3), rep("right", 6)))
-    ftable(new_x$fay.participant, new_x$ccrpi.points, new_x$performance.lvl,
-           dnn = list("**'FAY Participant'**", paste0("**", label.subjgr, " 'CCRPI Points'**"),
-                      "**_Recoded_ 'OSA Performance Code'**")) %>%
-        pander(caption = paste0("'FAY Participant' by _Recoded_ ", label.subjgr, " 'OSA Performance Code' by ", label.subjgr, " 'CCRPI Points'"),
-               justify = c("center", "center", "center", rep("right", 4)))
 }
