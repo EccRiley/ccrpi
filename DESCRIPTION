@@ -9,7 +9,6 @@ License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-  Riley,
   magrittr,
   data.table
 Remotes: 
