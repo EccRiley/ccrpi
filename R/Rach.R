@@ -72,35 +72,33 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
     ### FILTER ON FAY & FOCAL SUBJECT AREA ####
     ## (... & CREATE 'new_x' AS A DATA.TABLE-CLASSED COPY OF 'x', RETAINING ONLY VARIABLES CM-RELEVANT) ##
     library(data.table)
-    new_x <- as.data.table(x[x[[fay_var]] == fay_code & x[[subject_var == subject_code]],
+    new_x <- as.data.table(x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code,
                names(x) %in% newxvars, drop = FALSE])
-
-    new_x <- x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code, names(x) %in% newxvars, drop = FALSE]
-
+    setkeyv(new_x, c("school.id", "school.year", "gtid"))
     ### RESTRICT TO VALID ASSESSMENT TYPES ('assessment_type_var'): ####
     new_x <- new_x[new_x[[assessment_type_var]] %in% assessment_type_codes]
 
     ### RESTRICT TO APPROPRIATE GRADE LEVELS BASED ON USER-SPECIFIED GRADEBAND ####
     if (gradeband == "MS") {
         ## HIGH SCHOOLS ##
-        new_x <- new_x[x[[grade_var]] %in% c(6, 7, 8)]
+        new_x <- new_x[new_x[[grade_var]] %in% c(6, 7, 8)]
     } else  if (gradeband == "HS") {
         ## MIDDLE SCHOOLS ##
-        new_x <- new_x[x[[grade_var]] >= 9]
+        new_x <- new_x[new_x[[grade_var]] >= 9]
     } else if (gradeband == "ES") {
         ## ELEMENTARY SCHOOLS ##
-        new_x <- new_x[x[[grade_var]] <= 5]
+        new_x <- new_x[new_x[[grade_var]] <= 5]
     } else stop("Unusable Grade Band")
 
     ### RESTRICT TO VALID ACHIEVEMENT LEVEL CODES ####
-    new_x <- new_x[x[[performance_code_var]] %in% valid_performance_codes]
+    new_x <- new_x[new_x[[performance_code_var]] %in% valid_performance_codes]
 
     ### RECODE OSA.PERFORMANCE.CODE ####
     ## (... TO ENSURE THAT THE ACH-PT LEVELS ARE ORDERED CORRECTLY IN TABULATED OUTPUTS LATER) ##
-    new_x[, performance.lvl := car::recode(x[[performance_code_var]], rec.cmlvls)] ## SEE 'rec.cmlvls' DEF ABOVE ##
+    new_x[, performance.lvl := car::recode(new_x[[performance_code_var]], rec.cmlvls)] ## SEE 'rec.cmlvls' DEF ABOVE ##
 
     ### CREATE NEW "ccrpi.points" COLUMN (PER D.JAFFE) <==> EACH STUDENT'S ACH. PTS. EARNED ON THE INPUT SUBJ. ##
-    new_x[, ccrpi.points := car::recode(x[[performance_code_var]], rec.cmpnts)] ## SEE 'rec.cmpnts' DEF ABOVE ##
+    new_x[, ccrpi.points := car::recode(new_x[[performance_code_var]], rec.cmpnts)] ## SEE 'rec.cmpnts' DEF ABOVE ##
 
     cm.subj <- new_x[, .(N_Students = .N, ## COMPUTE NUMBER OF VALID TEST RESULTS FOR THE FOCAL SUBJ. ##
                          SumPts = sum(ccrpi.points), ## COMPUTE TOTAL ACH.PTS. EARNED ON THE FOCAL SUBJ. ##
@@ -132,8 +130,9 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
 
     ### RETURN OUTPUT(S) ####
     ## BY DEFAULT, 'new_x' DF IS RETURNED ALONG WITH CM.SUBJ. DF ##
+    res.all <- list(new_x = new_x, cm.subj = cm.subj)
     if (return_new_x == TRUE) {
-        return(list(new_x = new_x, cm.subj = cm.subj))
+        return(res.all)
     } else return(cm.subj)
 }
 #'
