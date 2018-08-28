@@ -56,7 +56,6 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
                  valid_performance_codes = c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS"),
                  rec_cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
                  rec_cmpnts = c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5"),
-                 rec_cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
                  group_var = NULL, group = NULL, return_new_x = TRUE, ...) {
 
     ## 'newxvars': LIST OF ALL ESSENTIAL VARS (INCL. SUBGROUPS' VARS) FOR CONTENT MASTERY OUTPUT DF ##
