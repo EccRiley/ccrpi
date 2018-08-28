@@ -74,7 +74,7 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
     library(data.table)
     new_x <- as.data.table(x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code,
                names(x) %in% newxvars, drop = FALSE])
-    setkeyv(new_x, c("school.id", "school.year", "gtid"))
+    # setkeyv(new_x, c("school.id", "school.year", "gtid"))
     ### RESTRICT TO VALID ASSESSMENT TYPES ('assessment_type_var'): ####
     new_x <- new_x[new_x[[assessment_type_var]] %in% assessment_type_codes]
 
