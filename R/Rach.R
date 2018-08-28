@@ -14,8 +14,8 @@
 #' @param fay_code A character vector specifying acceptable values of \code{fay_var} for the \emph{FAY} filter.
 #' @param performance_code_var A character vector of length 1 specifying the column name in \code{x} containing the assessment performance codes (e.g., "BEG", "DEV", "PRO", "DIS").
 #' @param valid_performance_codes A character vector specifying the acceptable performance code values under \code{performance_code_var}.
-#' @param rec.cmlvls A character vector of (pseudo) length 1 providing the \code{'recodes'} string to be passed to \code{\link[car]{car::recode()}} for the re-labeling \emph{Content Mastery} achievement levels.
-#' @param rec.cmpnts A character vector of (pseudo) length 1 providing the \code{'recodes'} string to be passed to \code{\link[car]{car::recode()}} for assigning point values corresponding to the \emph{Content Mastery} achievement levels.
+#' @param rec_cmlvls A character vector of (pseudo) length 1 providing the \code{'recodes'} string to be passed to \code{\link[car]{car::recode()}} for the re-labeling \emph{Content Mastery} achievement levels.
+#' @param rec_cmpnts A character vector of (pseudo) length 1 providing the \code{'recodes'} string to be passed to \code{\link[car]{car::recode()}} for assigning point values corresponding to the \emph{Content Mastery} achievement levels.
 #' @param group_var An \emph{optional} character vector specifying the column name in \code{x} containing the appropriate variable for the focal subgroup (see \emph{Details} and \code{\link{Rcgpts}}).
 #' @param group A character vector specifying the appropriate subgroup under \code{group_var} (ignored if \code{group_var} is \code{NULL}).
 #' @param return_new_x logical. If \code{TRUE} (the default), the final returned value is a list containing (1) the manipulated version of the input dataframe (`x`), for QC purposes, and (2) the computed subject-level \emph{Content Mastery} points dataframe.
@@ -30,7 +30,7 @@
 #' @section Details:
 #'
 #' \strong{\code{'new_x'}}, if returned, contains all columns in the original input \code{dataframe} (\strong{\code{'x'}}), along with two new columns: \code{\emph{"osa.performance.lvl"}} and \code{\emph{"ccrpi.points"}}.
-#' The former is a relabeled version of \code{x[["osa.performance.code"]]}, while \code{\emph{"ccrpi.points"}} contains the point-value assignment corresponding to each students' achievement level (per recode values specified in '\code{rec.cmpts}').
+#' The former is a relabeled version of \code{x[["osa.performance.code"]]}, while \code{\emph{"ccrpi.points"}} contains the point-value assignment corresponding to each students' achievement level (per recode values specified in '\code{rec_cmpts}').
 #'
 #' The table below provides details for the contents of \strong{\code{'cm.subj'}} (i.e., the returned dataframe containing the computed points for the focal \emph{Content Mastery} subject-area indicator):
 #'
@@ -95,10 +95,10 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
 
     ### RECODE OSA.PERFORMANCE.CODE ####
     ## (... TO ENSURE THAT THE ACH-PT LEVELS ARE ORDERED CORRECTLY IN TABULATED OUTPUTS LATER) ##
-    new_x[, performance.lvl := car::recode(new_x[[performance_code_var]], rec_cmlvls)] ## SEE 'rec_cmlvls' DEF ABOVE ##
+    new_x[, performance.lvl := car::recode(new_x[[performance_code_var]], rec_cmlvls)] ## SEE 'rec_cmlvls' ARG DESC ##
 
     ### CREATE NEW "ccrpi.points" COLUMN (PER D.JAFFE) <==> EACH STUDENT'S ACH. PTS. EARNED ON THE INPUT SUBJ. ##
-    new_x[, ccrpi.points := car::recode(new_x[[performance_code_var]], rec.cmpnts)] ## SEE 'rec.cmpnts' DEF ABOVE ##
+    new_x[, ccrpi.points := car::recode(new_x[[performance_code_var]], rec_cmpnts)] ## SEE 'rec_cmpnts' ARG DESC ##
 
     cm.subj <- new_x[, .(N_Students = .N, ## COMPUTE NUMBER OF VALID TEST RESULTS FOR THE FOCAL SUBJ. ##
                          SumPts = sum(ccrpi.points), ## COMPUTE TOTAL ACH.PTS. EARNED ON THE FOCAL SUBJ. ##
