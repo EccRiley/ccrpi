@@ -56,6 +56,7 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
                  valid_performance_codes = c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS"),
                  rec_cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
                  rec_cmpnts = c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5"),
+                 rec_cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
                  group_var = NULL, group = NULL, return_new_x = TRUE, ...) {
 
     ## 'newxvars': LIST OF ALL ESSENTIAL VARS (INCL. SUBGROUPS' VARS) FOR CONTENT MASTERY OUTPUT DF ##
@@ -95,7 +96,7 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
 
     ### RECODE OSA.PERFORMANCE.CODE ####
     ## (... TO ENSURE THAT THE ACH-PT LEVELS ARE ORDERED CORRECTLY IN TABULATED OUTPUTS LATER) ##
-    new_x[, performance.lvl := car::recode(new_x[[performance_code_var]], rec.cmlvls)] ## SEE 'rec.cmlvls' DEF ABOVE ##
+    new_x[, performance.lvl := car::recode(new_x[[performance_code_var]], rec_cmlvls)] ## SEE 'rec_cmlvls' DEF ABOVE ##
 
     ### CREATE NEW "ccrpi.points" COLUMN (PER D.JAFFE) <==> EACH STUDENT'S ACH. PTS. EARNED ON THE INPUT SUBJ. ##
     new_x[, ccrpi.points := car::recode(new_x[[performance_code_var]], rec.cmpnts)] ## SEE 'rec.cmpnts' DEF ABOVE ##
