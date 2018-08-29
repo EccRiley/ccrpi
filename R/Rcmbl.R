@@ -21,7 +21,7 @@ Rcmbl <- function(bl.subj, gradecluster, gradevar, subject, subject_var, subject
     ### [XSUBJ - GMA ACHIEVEMENT SCORES BY SUBGROUP] ###
     xsubj <- lapply(names(lgrps), function(x) {
         Rach(bl.subj,
-             groupvar = bl.subj[, lgrpvars[[x]]],
+             groupvar = lgrpvars[[x]], #bl.subj[, lgrpvars[[x]]],
              group = lgrps[[x]],
              gradeband = gradecluster,
              subject = subject,
@@ -61,3 +61,4 @@ Rcmbl <- function(bl.subj, gradecluster, gradevar, subject, subject_var, subject
     subj.cmbl <- rbindlist(lsubj.cmbl)
     return(subj.cmbl)
 }
+ 
