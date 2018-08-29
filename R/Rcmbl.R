@@ -1,7 +1,20 @@
 #' Generate Subgroups' \emph{Content Mastery} Baseline Data (todo)
 #'
 #' @export
-Rcmbl <- function(bl.subj, gradecluster, subject, ...) { ## '...' NOT CURRENTLY IMPLEMENTED ##
+Rcmbl <- function(bl.subj, gradecluster, gradevar, subject, subject_var, subject_code, assessment_type_var = subject_var, 
+                  assessment_type_codes = subject_code, fay_var = subject_var, fay_code = subject_code, performance_code_var,
+                  lgrps <- list(all = "all", ai = "I", as = "S", bl = "B", hp = "H", 
+                                mr = "M", wh = "W", ed = "Y", el = "Y", swd = "Y"),
+                  lgrpvars <- list(all = "all", ai = "race.code", as = "race.code", 
+                                   bl = "race.code", hp = "race.code", mr = "race.code", 
+                                   wh = "race.code", ed = "ed", el = "el", swd = "swd"),
+                  lbsg <- list(ball = "all", bai = "ai", bas = "as", bbl = "bl", bhp = "hp", 
+                               bmr = "mr",bwh = "wh", bed = "ed", bel = "el", bswd = "swd"),
+                  ...) { ## '...' NOT CURRENTLY IMPLEMENTED ##
+    
+    ### PREMPTIVELY ENSURE THAT "BL.SUBJ" IS ONLY A DATA.FRAME OBJECT (NOT A DATA.TABLE OBJ.) ###
+    bl.subj <- as.data.frame(bl.subj)
+    
     ### (ADD COLUMN TO INPUT DATA FOR 'ALL' CATEGORY) ###
     bl.subj$all <- "all"
 
