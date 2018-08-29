@@ -48,7 +48,7 @@
 #'
 #'
 #' @export
-Rach1 <- function(x, gradeband, grade_var = "student.grade.level",
+Rach <- function(x, gradeband, grade_var = "student.grade.level",
                  subject, subject_var, subject_code,
                  assessment_type_var,
                  assessment_type_codes = c("EOG", "EOC", "GAA"),
