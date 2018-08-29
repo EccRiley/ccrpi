@@ -49,12 +49,12 @@ Rcmbl <- function(bl.subj, gradecluster, gradevar, subject, subject_var, subject
         y <- as.data.frame(xsubj.cmbl0[[x]])
         y <- y[, c(vars.subj.cmbl)]
         names(y) <- c("school.id", "n.students", "baseline")
-        y$grade.cluster <- gradecluster
+        y$gradecluster <- gradecluster
         y$assessment.subject <- subject
         y$reporting.category <- lbsg[[x]]
         # y$n.students <- ifelse(y$n.students < 15, NA, y$n.students)
         y$baseline <- ifelse(y$n.students < 15 , NA, y$baseline*100)
-        res <- y[, c("school.id", "n.students", "grade.cluster", "reporting.category", "assessment.subject", "baseline")]
+        res <- y[, c("school.id", "n.students", "gradecluster", "reporting.category", "assessment.subject", "baseline")]
         return(res)
     })
 
