@@ -3,12 +3,12 @@
 #' @export
 Rcmbl <- function(bl.subj, gradecluster, gradevar, subject, subject_var, subject_code, assessment_type_var = subject_var, 
                   assessment_type_codes = subject_code, fay_var = subject_var, fay_code = subject_code, performance_code_var,
-                  lgrps <- list(all = "all", ai = "I", as = "S", bl = "B", hp = "H", 
+                  lgrps = list(all = "all", ai = "I", as = "S", bl = "B", hp = "H", 
                                 mr = "M", wh = "W", ed = "Y", el = "Y", swd = "Y"),
-                  lgrpvars <- list(all = "all", ai = "race.code", as = "race.code", 
+                  lgrpvars = list(all = "all", ai = "race.code", as = "race.code", 
                                    bl = "race.code", hp = "race.code", mr = "race.code", 
                                    wh = "race.code", ed = "ed", el = "el", swd = "swd"),
-                  lbsg <- list(ball = "all", bai = "ai", bas = "as", bbl = "bl", bhp = "hp", 
+                  lbsg = list(ball = "all", bai = "ai", bas = "as", bbl = "bl", bhp = "hp", 
                                bmr = "mr",bwh = "wh", bed = "ed", bel = "el", bswd = "swd"),
                   ...) { ## '...' NOT CURRENTLY IMPLEMENTED ##
     
@@ -19,12 +19,17 @@ Rcmbl <- function(bl.subj, gradecluster, gradevar, subject, subject_var, subject
     bl.subj$all <- "all"
 
     ### [XSUBJ - GMA ACHIEVEMENT SCORES BY SUBGROUP] ###
-    xsubj <- lapply(names(lgrps), function(x)
+    xsubj <- lapply(names(lgrps), function(x) {
         Rach(bl.subj,
              groupvar = bl.subj[, lgrpvars[[x]]],
              group = lgrps[[x]],
              gradeband = gradecluster,
-             subject = subject))
+             subject = subject,
+             assessment_type_var = assessment_type_var, 
+             assessment_type_codes = assessment_type_codes, 
+             fay_var = fay_var, fay_code = fay_code, 
+             performance_code_var = performance_code_var)
+      })
 
     ### (XSUBJ.NEWX & XSUBJ.CM* - SEPARATE Rach() OUTPUTS) ###
     xsubj.newxbl <- lapply(xsubj, function(x) x[["new_x"]])
