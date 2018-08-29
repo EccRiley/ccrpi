@@ -25,6 +25,8 @@ Rcmbl <- function(bl.subj, gradecluster, gradevar, subject, subject_var, subject
              group = lgrps[[x]],
              gradeband = gradecluster,
              subject = subject,
+             subject_var = subject_var,
+             subject_code = subject_code,
              assessment_type_var = assessment_type_var, 
              assessment_type_codes = assessment_type_codes, 
              fay_var = fay_var, fay_code = fay_code, 
