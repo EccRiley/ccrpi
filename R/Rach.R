@@ -58,7 +58,7 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
                  keynames = c("school.id", "school.year", "gtid"),
                  rec_cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
                  rec_cmpnts = c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5"),
-                 group_var, group, return_new_x = TRUE, ...) {
+                 group_var = NULL, group = NULL, return_new_x = TRUE, ...) {
     ## PREEMPTIVELY ENSURE 'X' IS A DATA.FRAME CLASS OBJECT TO START OUT (NOT A DATA.TABLE OBJECT YET) ## 
     x <- as.data.frame(x)  
     ## 'newxvars': LIST OF ALL ESSENTIAL VARS (INCL. SUBGROUPS' VARS) FOR CONTENT MASTERY OUTPUT DF ##
