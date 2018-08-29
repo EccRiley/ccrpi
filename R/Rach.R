@@ -75,9 +75,9 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
     ### FILTER ON FAY & FOCAL SUBJECT AREA ####
     ## (... & CREATE 'new_x' AS A DATA.TABLE-CLASSED COPY OF 'x', RETAINING ONLY VARIABLES CM-RELEVANT) ##
     library(data.table)
-    new_x <- as.data.table(x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code,
-               names(x) %in% newxvars, drop = FALSE])
-    setkeyv(new_x, keynames)
+    new_x <- x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code,
+               names(x) %in% newxvars, drop = FALSE]
+    setDT(new_x, key = keynames[[1]])
     
     ### RESTRICT TO VALID ASSESSMENT TYPES ('assessment_type_var'): ####
     new_x <- new_x[new_x[[assessment_type_var]] %in% assessment_type_codes]
