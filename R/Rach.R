@@ -14,6 +14,7 @@
 #' @param fay_code A character vector specifying acceptable values of \code{fay_var} for the \emph{FAY} filter.
 #' @param performance_code_var A character vector of length 1 specifying the column name in \code{x} containing the assessment performance codes (e.g., "BEG", "DEV", "PRO", "DIS").
 #' @param valid_performance_codes A character vector specifying the acceptable performance code values under \code{performance_code_var}.
+#' @param keynames A character vector of length 3 providing the variable names in \code{x} corresponding to: \code{c("school.id", "school.year", "gtid")}.
 #' @param rec_cmlvls A character vector of (pseudo) length 1 providing the \code{'recodes'} string to be passed to \code{\link[car]{car::recode()}} for the re-labeling \emph{Content Mastery} achievement levels.
 #' @param rec_cmpnts A character vector of (pseudo) length 1 providing the \code{'recodes'} string to be passed to \code{\link[car]{car::recode()}} for assigning point values corresponding to the \emph{Content Mastery} achievement levels.
 #' @param group_var An \emph{optional} character vector specifying the column name in \code{x} containing the appropriate variable for the focal subgroup (see \emph{Details} and \code{\link{Rcgpts}}).
@@ -47,19 +48,21 @@
 #'
 #'
 #' @export
-Rach <- function(x, gradeband, grade_var = "student.grade.level",
+Rach1 <- function(x, gradeband, grade_var = "student.grade.level",
                  subject, subject_var, subject_code,
                  assessment_type_var,
                  assessment_type_codes = c("EOG", "EOC", "GAA"),
                  fay_var, fay_code = "Y",
                  performance_code_var = "osa.performance.code",
                  valid_performance_codes = c("BEG", "DNM", "DEV", "PRO", "ADV", "DIS"),
+                 keynames = c("school.id", "school.year", "gtid"),
                  rec_cmlvls = c("'BEG' = 'L1'; 'DNM' = 'L1'; 'DEV' = 'L2'; 'PRO' = 'L3'; 'ADV' = 'L3'; 'DIS' = 'L4'"),
                  rec_cmpnts = c("'BEG' = 0; 'DNM' = 0; 'DEV' = 0.5; 'PRO' = 1; 'ADV' = 1; 'DIS' = 1.5"),
-                 group_var = NULL, group = NULL, return_new_x = TRUE, ...) {
-
+                 group_var, group, return_new_x = TRUE, ...) {
+    ## PREEMPTIVELY ENSURE 'X' IS A DATA.FRAME CLASS OBJECT TO START OUT (NOT A DATA.TABLE OBJECT YET) ## 
+    x <- as.data.frame(x)  
     ## 'newxvars': LIST OF ALL ESSENTIAL VARS (INCL. SUBGROUPS' VARS) FOR CONTENT MASTERY OUTPUT DF ##
-    newxvars <- c("school.id", "school.name", "school.year", "N_Students", "gtid",
+    newxvars <- c(keynames, "school.name", "N_Students",
                   "fay.participant", grade_var, "gender.code", "race.code", "el", "ed", "swd", "all",
                   assessment_type_var, performance_code_var, "osa.performance.lvl",
                   "SumPts", "AchPts", "AchPts_Cpd", "AchPts_Wgtd", "ccrpi.points")
@@ -67,14 +70,15 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
 
     ### RESTRICT X TO SPECIFIED GROUP (IF APPLICABLE) ####
     if (!is.null(group_var)) {
-        x <- x[group_var == group, drop = FALSE]
+        x <- x[group_var == group, , drop = FALSE]
     }
     ### FILTER ON FAY & FOCAL SUBJECT AREA ####
     ## (... & CREATE 'new_x' AS A DATA.TABLE-CLASSED COPY OF 'x', RETAINING ONLY VARIABLES CM-RELEVANT) ##
     library(data.table)
     new_x <- as.data.table(x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code,
                names(x) %in% newxvars, drop = FALSE])
-    # setkeyv(new_x, c("school.id", "school.year", "gtid"))
+    setkeyv(new_x, keynames)
+    
     ### RESTRICT TO VALID ASSESSMENT TYPES ('assessment_type_var'): ####
     new_x <- new_x[new_x[[assessment_type_var]] %in% assessment_type_codes]
 
@@ -137,3 +141,4 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
 }
 #'
 #' @section Examples (todo):
+#'
