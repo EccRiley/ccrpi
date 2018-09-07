@@ -1,4 +1,4 @@
-#' \emph{Content Mastery} Subject-Area Indicators' Points (in progress)
+#' \emph{Content Mastery} Subject-Area Indicators' Points (\code{DRAFT RD})
 #'
 #' Compute subject-area indicator points for the \emph{Content Mastery CCRPI} component, overall (per individual school, or across multiple schools within the same gradeband) or by subgroup(s).
 #'
