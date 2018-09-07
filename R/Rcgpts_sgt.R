@@ -1,4 +1,4 @@
-#' Pre-Process Input Data for \code{\link{Rcgpts}} (todo)
+#' Pre-Process Input Data for \code{\link{Rcgpts}} (\code{DRAFT RD})
 #'
 #' @param xw todo
 #' @param category_var todo
