@@ -1,4 +1,4 @@
-#' Generate Subgroups' \emph{Content Mastery} Baseline Data (todo)
+#' Generate Subgroups' \emph{Content Mastery} Baseline Data (\code{DRAFT RD})
 #'
 #' @export
 Rcmbl <- function(bl.subj, gradeband, grade_var, subject, subject_var, subject_code, assessment_type_var = subject_var,
