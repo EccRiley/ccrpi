@@ -25,14 +25,10 @@ Rcgpts <- function(x,
     ## SUBJECT-SPECIFIC LABELS FOR BASELINE & TARGETS COLUMNS ##
     labs <- c(paste0("baseline.", subject), paste0("target.baseline.", subject),
               paste0("target.baseline.", subject, "2"))
-    if (in_vivo_qc == TRUE) { cat("\n----------\n'labs':\n----------\n"); print(labs, digits = 4) } ## IN VIVO QC ##
-
+    
     ## COMBINE CURRENT ('x'), BASELINE ('df.baseline'), & TARGETS ('df.target') INPUT DFs ##
     x1 <- merge(x, df.baseline[, c("school.id", "cat", labs[1])], all = TRUE) ## [CURRENT]+[BASELINE] DATA ##
     x2 <- merge(x1, df.target[df.target$target.level == "t1", c("school.id", "cat", labs[2])], all = TRUE) ## [CURRENT+BASELINE]+[3% TARGET ('t1')] ##
-
-    if (in_vivo_qc == TRUE) { cat("\n-------------------------------\n'x1'(`[CURRENT] + [BASELINE]`):\n-------------------------------\n") }; print(x1, digits = 4) ## IN VIVO QC ##
-    if (in_vivo_qc == TRUE) { cat("\n------------------------------------------------------\n'x2'(`{[CURRENT] + [BASELINE]} + [3% TARGET ('t1')]`):\n------------------------------------------------------\n") }; print(x2, digits = 4) ## IN VIVO QC ##
 
     ## RENAME INPUT TARGET DATA'S  [TARGET VALUES] COLUMN TO REPRESENT 't2' TARGET (FOR MERGE IN THE SUBSEQUENT LINES RESULTING IN 'xx') ##
     df.target2 <- df.target
@@ -46,8 +42,7 @@ Rcgpts <- function(x,
                                 "target.baseline."), subject))],
                 df.target2[df.target2$target.level == "t2",
                            c("school.id", "cat", labs[3])], all = TRUE)
-    if (in_vivo_qc == TRUE) { cat("\n----------------------------------------------------------------------------\n'xx' (`{[CURRENT] + [BASELINE] + [3% TARGET ('t1')]} + [6% TARGET ('t2')]`):\n----------------------------------------------------------------------------\n"); print(xx, digits = 4) }## IN VIVO QC ##
-
+    
     ## PROGRAMMATICALLLY, VIA REGEX, RENAME XX'S COLUMNS TO AVOID POSSIBLE MIS-NAMING DUE TO MISMATCHED COLUMN ORDERING ##
     ### NOTE: THE BELOW LINES COULD ACTUALLY BE TAKEN CARE IN ONLY TWO LINES, AND PROBABLY MORE ELEGANTLY, ...
     ### ... BUT I'M TAKING THE LONG ROUTE HERE FOR CLARITY/TRANSPARENCY, GIVEN THE (OBNOXIOUS) COMPLEXITY OF THE CLOSING GAPS COMPONENT ###
@@ -60,8 +55,6 @@ Rcgpts <- function(x,
     ### ... 'ach.pr' WAS USED IN THE ORIGINAL VERSION OF Rcgpts() (WRITTEN & IMPLEMENTED IN 2018-02) ###
     ### ... TO DENOTE ACHIEVEMENT POINTS WEIGHTED BASED ON PARTICIPATION RATE ...
     ### ... HOWEVER, AS OF 2018-05-??, THE PARTICIPATION RATE BUSINESS RULE IS NOT CURRENTLY IMPLEMENTED ###
-
-    if (in_vivo_qc == TRUE) { cat("\n------------------------------\n'xx' (after renaming columns):\n------------------------------\n"); print(xx, digits = 4) }## IN VIVO QC ##
 
     ## CONDITIONALLY ASSIGN POINT VALUES BASED ON USER-SPECIFIED OPTION FOR 'both_targets' ARG ...
     ### ... SEE x.sgt.tg DEF IN Rcgpts_sgt(), WHICH AUTO-FILTERS WHETHER ONE OR BOTH TARGETS SHOULD BE USED ###
@@ -79,7 +72,6 @@ Rcgpts <- function(x,
         pts.l3 <- ifelse((ach.cm >= target.baseline), 3, 0)
         pts.l4 <- ifelse((ach.cm >= target.baseline2), 4, 0)
     })
-    if (in_vivo_qc == TRUE) { cat("\n------------------\n'x.pts' (initial):\n------------------\n"); print(x.pts, digits = 4) } ## IN VIVO QC ##
 
     ## ADDED (AS PART OF MODIFIED 'PTS' ASSIGNMENT FLOW) ON 2018-06-02 ##
     x.pts$pts.max <- apply(x.pts[, c("pts.l1", "pts.l2", "pts.l3", "pts.l4")], 1, max, na.rm = TRUE)
