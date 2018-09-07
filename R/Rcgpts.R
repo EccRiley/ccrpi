@@ -26,7 +26,7 @@ Rcgpts <- function(x,
             paste0("target.baseline.", subject, "2"))
 
   ## COMBINE CURRENT ('x'), BASELINE ('df.baseline'), & TARGETS ('df.target') INPUT DFs ##
-  x1 <- merge(x, df.baseline[, c("school.id", "reporting_category", labs[1])], all = TRUE) ## [CURRENT]+[BASELINE] DATA ##
+  x1 <- merge(x, df.baseline[, c("school.id", "reporting.category", labs[1])], all = TRUE) ## [CURRENT]+[BASELINE] DATA ##
   x2 <- merge(x1, df.target[df.target$target.level == "t1", c("school.id", "cat", labs[2])], all = TRUE) ## [CURRENT+BASELINE]+[3% TARGET ('t1')] ##
 
   ## RENAME INPUT TARGET DATA'S  [TARGET VALUES] COLUMN TO REPRESENT 't2' TARGET (FOR MERGE IN THE SUBSEQUENT LINES RESULTING IN 'xx') ##
