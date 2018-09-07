@@ -14,7 +14,8 @@ Rcgpts <- function(x,
     df.baseline,
     df.target,
     subject,
-    subgroups) {
+    subgroups,
+    cat_var = "reporting.caategory") {
 
     ## PREEMPTIVELY ENSURE THAT INPUT DATA ARE ONLY 'DATAFRAME' CLASS (NOT 'DATA.TABLE') ##
     x <- as.data.frame(x)
@@ -26,21 +27,21 @@ Rcgpts <- function(x,
               paste0("target.baseline.", subject, "2"))
     
     ## COMBINE CURRENT ('x'), BASELINE ('df.baseline'), & TARGETS ('df.target') INPUT DFs ##
-    x1 <- merge(x, df.baseline[, c("school.id", "cat", labs[1])], all = TRUE) ## [CURRENT]+[BASELINE] DATA ##
-    x2 <- merge(x1, df.target[df.target$target.level == "t1", c("school.id", "cat", labs[2])], all = TRUE) ## [CURRENT+BASELINE]+[3% TARGET ('t1')] ##
+    x1 <- merge(x, df.baseline[, c("school.id", cat_var, labs[1])], all = TRUE) ## [CURRENT]+[BASELINE] DATA ##
+    x2 <- merge(x1, df.target[df.target$target.level == "t1", c("school.id", cat_var, labs[2])], all = TRUE) ## [CURRENT+BASELINE]+[3% TARGET ('t1')] ##
 
     ## RENAME INPUT TARGET DATA'S  [TARGET VALUES] COLUMN TO REPRESENT 't2' TARGET (FOR MERGE IN THE SUBSEQUENT LINES RESULTING IN 'xx') ##
     df.target2 <- df.target
     names(df.target2)[which(names(df.target2) == labs[2])] <- labs[3]
 
     ## [[CURRENT+BASELINE]+[3% TARGET ('t1')]]+[6%TARGET ('t2')] DATA ##
-    xx <- merge(x2[, c("school.id", "cat",
+    xx <- merge(x2[, c("school.id", cat_var,
                        paste0(c("N_Students.",
                                 "AchPts_Cpd.",
                                 "baseline.",
                                 "target.baseline."), subject))],
                 df.target2[df.target2$target.level == "t2",
-                           c("school.id", "cat", labs[3])], all = TRUE)
+                           c("school.id", cat_var, labs[3])], all = TRUE)
     
     ## PROGRAMMATICALLLY, VIA REGEX, RENAME XX'S COLUMNS TO AVOID POSSIBLE MIS-NAMING DUE TO MISMATCHED COLUMN ORDERING ##
     ### NOTE: THE BELOW LINES COULD ACTUALLY BE TAKEN CARE IN ONLY TWO LINES, AND PROBABLY MORE ELEGANTLY, ...
@@ -78,7 +79,7 @@ Rcgpts <- function(x,
     x.pts$pts <- ifelse(is.na(x.pts$pts.max), NA, paste0("L", x.pts$pts.max))
     if (in_vivo_qc == TRUE) { cat("'x.pts' (intermediate):\n"); print(x.pts, digits = 4) } ## IN VIVO QC ##
 
-    x.pts <- x.pts[, c("school.id", "cat", "N", "ach.cm", "baseline", "target.baseline", "target.baseline2", "pts")]
+    x.pts <- x.pts[, c("school.id", cat_var, "N", "ach.cm", "baseline", "target.baseline", "target.baseline2", "pts")]
 
     ## RETURN INPUT SUBGROUP'S COMPUTED CLOSING GAPS POINTS ON THE SPECIFIED 'subject' ##
     return(list(xx = xx, xpts = x.pts))
