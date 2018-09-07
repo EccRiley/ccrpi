@@ -14,8 +14,7 @@ Rcgpts <- function(x,
     df.baseline,
     df.target,
     subject,
-    subgroups,
-    in_vivo_qc = getOption("in_vivo_qc")) {
+    subgroups) {
 
     ## PREEMPTIVELY ENSURE THAT INPUT DATA ARE ONLY 'DATAFRAME' CLASS (NOT 'DATA.TABLE') ##
     x <- as.data.frame(x)
