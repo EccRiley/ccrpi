@@ -109,7 +109,7 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
                        AchPts = sum(ccrpi.points)/.N), ## COMPUTE SUBJ. INDICATOR'S CCRPI PTS ##
                    by = c(key(new_x))] ## DO ALL OF THE ABOVE BY SCHOOL ##
   ### ... (NOTE: SUBJ. INDICATOR CCRPI PTS ARE COMPUTED AS A FUNCTION OF [TOTAL ACH.PTS. EARNED] DIVIDED BY  [NUMBER OF VALID TEST RESULTS] FOR THE FOCAL SUBJ. - THE RESULTING SCHOOL-LEVEL INDICATOR SCORE IS ROUNDED TO 2 DECIMAL PLACES, PER 2018 CALCULATION GUIDE) ###
-  cm.subj <-
+
   ## CAP SUBJ. INDICATOR ACHIEVEMENT POINTS AT 100% (i.e., 1.0pts) ##
   cm.subj[, AchPts_Cpd := ifelse(AchPts >= 1.0000, 1, AchPts)]
 
