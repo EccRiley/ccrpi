@@ -70,32 +70,33 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
 
   ### RESTRICT X TO SPECIFIED GROUP (IF APPLICABLE) ####
   if (!is.null(group_var)) {
-    x <- droplevels(unique(x[x[[group_var]] == group, ]))
+    x <- x[x[[group_var]] == group, , drop = FALSE]
   }
-  ### FILTER ON FAY & FOCAL SUBJECT AREA ####
-  ## (... & CREATE 'new_x' AS A DATA.TABLE-CLASSED COPY OF 'x', RETAINING ONLY VARIABLES CM-RELEVANT) ##
-  library(data.table)
-  new_x <- x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code,
-             names(x) %in% newxvars]
-  setDT(new_x, key = keynames[[1]])
 
   ### RESTRICT TO VALID ASSESSMENT TYPES ('assessment_type_var'): ####
-  new_x <- new_x[new_x[[assessment_type_var]] %in% assessment_type_codes]
+  x <- x[x[[assessment_type_var]] %in% assessment_type_codes, ]
 
   ### RESTRICT TO APPROPRIATE GRADE LEVELS BASED ON USER-SPECIFIED GRADEBAND ####
   if (gradeband == "MS") {
     ## HIGH SCHOOLS ##
-    new_x <- new_x[new_x[[grade_var]] %in% c(6, 7, 8)]
+    x <- x[x[[grade_var]] %in% c(6, 7, 8), , drop = FALSE]
   } else  if (gradeband == "HS") {
     ## MIDDLE SCHOOLS ##
-    new_x <- new_x[new_x[[grade_var]] >= 9]
+    x <- x[x[[grade_var]] >= 9, , drop = FALSE]
   } else if (gradeband == "ES") {
     ## ELEMENTARY SCHOOLS ##
-    new_x <- new_x[new_x[[grade_var]] <= 5]
+    x <- x[x[[grade_var]] <= 5, , drop = FALSE]
   } else stop("Unusable Grade Band")
 
   ### RESTRICT TO VALID ACHIEVEMENT LEVEL CODES ####
-  new_x <- new_x[new_x[[performance_code_var]] %in% valid_performance_codes]
+  x <- x[x[[performance_code_var]] %in% valid_performance_codes, , drop = FALSE]
+
+  ### FILTER ON FAY & FOCAL SUBJECT AREA ####
+  ## (... & CREATE 'new_x' AS A DATA.TABLE-CLASSED COPY OF 'x', RETAINING ONLY VARIABLES CM-RELEVANT) ##
+  library(data.table)
+  new_x <- x[x[[fay_var]] == fay_code & x[[subject_var]] %in% subject_code,
+             names(x) %in% newxvars, drop = FALSE]
+  setDT(new_x, key = keynames[[1]])
 
   ### RECODE OSA.PERFORMANCE.CODE ####
   ## (... TO ENSURE THAT THE ACH-PT LEVELS ARE ORDERED CORRECTLY IN TABULATED OUTPUTS LATER) ##
@@ -109,7 +110,6 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
                        AchPts = sum(ccrpi.points)/.N), ## COMPUTE SUBJ. INDICATOR'S CCRPI PTS ##
                    by = c(key(new_x))] ## DO ALL OF THE ABOVE BY SCHOOL ##
   ### ... (NOTE: SUBJ. INDICATOR CCRPI PTS ARE COMPUTED AS A FUNCTION OF [TOTAL ACH.PTS. EARNED] DIVIDED BY  [NUMBER OF VALID TEST RESULTS] FOR THE FOCAL SUBJ. - THE RESULTING SCHOOL-LEVEL INDICATOR SCORE IS ROUNDED TO 2 DECIMAL PLACES, PER 2018 CALCULATION GUIDE) ###
-
   ## CAP SUBJ. INDICATOR ACHIEVEMENT POINTS AT 100% (i.e., 1.0pts) ##
   cm.subj[, AchPts_Cpd := ifelse(AchPts >= 1.0000, 1, AchPts)]
 
@@ -141,3 +141,4 @@ Rach <- function(x, gradeband, grade_var = "student.grade.level",
 #'
 #' @section Examples (todo):
 #'
+ 
